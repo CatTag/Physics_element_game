@@ -1,2 +1,5 @@
 # Physics_element_game
-a shit game about elements and physics
+A shit game about elements and physics.
+
+# Compiling:
+To compile simply install raylib though your package manager then execute the "run" script.

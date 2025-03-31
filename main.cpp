@@ -146,10 +146,7 @@ int main() {
     element_grid[4][9].decay_type = neutron;
     element_grid[4][10].halflife = 1;
     element_grid[4][10].decay_type = beta_neg;
-    element_grid[4][11].halflife = 1;
-    element_grid[4][11].decay_type = neutron;
-    element_grid[4][12].halflife = 1;
-    element_grid[4][12].decay_type = dineutron;
+
 
 
 

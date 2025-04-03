@@ -191,6 +191,7 @@ int main() {
     int locked_time = 0;
     int true_frames = 0;
     int true_time = 0;
+    int electron_change = 0;
     bool electron_balence = false;
 
     int feed_offset = 0;
@@ -315,9 +316,24 @@ int main() {
                 locked_time = 0;
                 locked_frames = 0;
             }
-        }
-
+        } 
         if (electron_balence) {
+   	    electron_change = protons-electrons;
+	    for (int a = 0; a < abs(electron_change); a++) {
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = add_electron;
+		if (electron_change < 0) {
+		    partical_feed_pos_neg[0] = 0;
+		} else {
+                    partical_feed_pos_neg[0] = 1;
+		}
+
+	    }
             electrons = protons;
         }
 	int random_num = rand() % 10;
@@ -347,7 +363,6 @@ int main() {
                     break;
                     case 3: //proton
                     protons--;
-                    electrons--;
 		    partical_feed[0] = proton;
                     break;
                     case 4: //neutron

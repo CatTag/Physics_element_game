@@ -19,6 +19,12 @@ enum decay_type {
     dineutron = 6,
     stable = 7,
     electron_capture = 8,
+    gamma_ray = 9,
+};
+
+
+enum changed_particals {
+	add_electron = 12,
 };
 
 
@@ -27,6 +33,12 @@ struct element{
     bool stable;
     float halflife;
     int decay_type;
+};
+
+enum feed_offsets {
+    electron_offset = 40,
+    alpha_offset = 97,
+    proton_neutron_offset = 60,
 };
 
 int main() {
@@ -132,7 +144,7 @@ int main() {
     //beryllium
     element_grid[4][2].halflife = 1;
     element_grid[4][2].decay_type = diproton;
-    element_grid[4][3].halflife = 662141952;
+    element_grid[4][3].halflife = 1;//662141952;
     element_grid[4][3].decay_type = electron_capture;
     element_grid[4][4].halflife = 1;
     element_grid[4][4].decay_type = alpha;
@@ -164,6 +176,10 @@ int main() {
 
 
 
+
+	
+    int partical_feed[5] = {7,7,7,7,7};
+    int partical_feed_pos_neg[5] = {0,0,0,0,0};
     InitWindow(SCR_WIDTH, SCR_HEIGHT, "Physics Element \"Game\"");
     SetTargetFPS(144);
     int i = 0;
@@ -171,15 +187,35 @@ int main() {
     int neutrons = 2;
     int electrons = 2;
     bool time_running = false;
-    int frames = 0;
-    int time = 0;
+    int locked_frames = 0;
+    int locked_time = 0;
+    int true_frames = 0;
+    int true_time = 0;
     bool electron_balence = false;
+
+    int feed_offset = 0;
+
     while (!WindowShouldClose()) {
-        frames++;
-        if (frames >= 144) {
-            time++;
-            frames = 0;
+	if (time_running) {
+            locked_frames++;
+            if (locked_frames >= 144) {
+                locked_time++;
+                locked_frames = 0;
+            }
+	}
+	true_frames++;
+        if (true_frames >= 144) {
+            true_time++;
+            true_frames = 0;
         }
+
+	if (true_frames == 0) {
+	    for (int i = 3; i >= 0; i--) {
+		partical_feed[i+1] = partical_feed[i];
+		partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	    }
+	    partical_feed[0] = 7;
+	}
 
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
@@ -188,38 +224,86 @@ int main() {
             //proton add
             if (mouse_x <= 90 && mouse_x >= 10 && mouse_y <= 90 && mouse_y >= 10 && protons < 10) {
                 protons++;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = proton;
+		partical_feed_pos_neg[0] = 1;
             }
             //proton remove
             if (mouse_x >= 100 && mouse_x <= 180 && mouse_y <= 90 && mouse_y >= 10 && protons > 0) {
                 protons--;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = proton;
+		partical_feed_pos_neg[0] = 0;
             }
             //neutron add
             if (mouse_x <= 90 && mouse_x >= 10 && mouse_y >= 100 && mouse_y <= 180 && neutrons < 10) {
                 neutrons++;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = neutron;
+		partical_feed_pos_neg[0] = 1;
             }
             //neuton remove
             if (mouse_x >= 100 && mouse_x <= 180 && mouse_y >= 100 && mouse_y <= 180 && neutrons > 0) {
                 neutrons--;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = neutron;
+		partical_feed_pos_neg[0] = 0;
             }
             //electron add
             if (mouse_x <= 90 && mouse_x >= 10 && mouse_y >= 190 && mouse_y <= 270 && electrons < 10 && !electron_balence) {
                 electrons++;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = add_electron;
+		partical_feed_pos_neg[0] = 1;
             }
             //electron remove
             if (mouse_x >= 100 && mouse_x <= 180 && mouse_y >= 190 && mouse_y <= 270 && electrons > 0 && !electron_balence) {
                 electrons--;
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
+		if (!(partical_feed[0] == 7)) {
+  	            for (int i = 3; i >= 0; i--) {
+		    	partical_feed[i+1] = partical_feed[i];
+		   	partical_feed_pos_neg[i+1] = partical_feed_pos_neg[i];
+	            }
+		}
+		partical_feed[0] = add_electron;
+		partical_feed_pos_neg[0] = 0;
             }
             //electron balence
             if (mouse_x >= 10 && mouse_x <= 90 && mouse_y >= 310 && mouse_y <= 390) {
@@ -228,68 +312,77 @@ int main() {
                 } else {
                     electron_balence = true;
                 }
-                time = 0;
-                frames = 0;
+                locked_time = 0;
+                locked_frames = 0;
             }
         }
 
         if (electron_balence) {
             electrons = protons;
         }
-
+	int random_num = rand() % 10;
+        double pow_1 = powf(1./2., 1./element_grid[protons][neutrons].halflife);
+        double pow_2 = powf(pow_1, locked_time*144.+locked_frames);
+        double comparison_num = 10 * pow_2;
        if (!element_grid[protons][neutrons].stable && time_running) {
-            int random_num = rand() % 10;
-            double pow_1 = powf(1./2., 1./element_grid[protons][neutrons].halflife);
-            double pow_2 = powf(pow_1, time*144.+frames);
-            double comparison_num = 10 * pow_2;
             if (random_num > comparison_num) {
+            	for (int i = 2; i > 1; i--) {
+		    partical_feed[i+1] = partical_feed[i];
+		}
                 switch (element_grid[protons][neutrons].decay_type) {
                     case 0: //alpha
                     protons -= 2;
                     neutrons -= 2;
+		    partical_feed[0] = alpha;
                     break;
                     case 1: //beta pos
                     protons--;
                     neutrons++;
+		    partical_feed[0] = beta_pos;
                     break;
                     case 2: //beta neg
                     protons++;
                     neutrons--;
+		    partical_feed[0] = beta_neg;
                     break;
                     case 3: //proton
                     protons--;
                     electrons--;
+		    partical_feed[0] = proton;
                     break;
                     case 4: //neutron
                     neutrons--;
+		    partical_feed[0] = neutron;
                     break;
                     case 5: //diproton
                     protons -= 2;
-                    electrons -= 2;
+		    partical_feed[0] = diproton;
                     break;
                     case 6: //dineutron
                     neutrons -= 2;
+		    partical_feed[0] = dineutron;
                     break;
                     case 7: //stable
                     break;
                     case 8: //electron capture
                     protons--;
                     neutrons++;
+		    partical_feed[0] = electron_capture;
                     break;
                     default:
                     cout << "something went wrong with the decay type lol";
                     return 1;
 
                 }
-                frames = 0;
-                time = 0;
+                locked_frames = 0;
+                locked_time = 0;
             }
             else {
                 //cout << "not decayed" << endl;
             }
         }
-        //cout << "time: " << time << endl;
-        //cout << "frames: " << frames << endl;
+        //cout << "locked_time: " << time << endl;
+        //cout << "locked_frames: " << frames << endl;
         
 
         
@@ -368,10 +461,16 @@ int main() {
         DrawText(element_grid[protons][neutrons].name.c_str(), (SCR_WIDTH-(MeasureTextEx(GetFontDefault(), element_grid[protons][neutrons].name.c_str(), 40, 1).x))/2, 10, 40, WHITE);
         DrawText(("Electrons: " + to_string(electrons)).c_str(), (SCR_WIDTH-(MeasureTextEx(GetFontDefault(), ("Electrons: " + to_string(electrons)).c_str(), 30, 1).x))/2, SCR_HEIGHT-40, 30, WHITE);
         if (protons-electrons > 0) {
-            DrawText(("Ion charge: +" + to_string(protons-electrons)).c_str(), SCR_WIDTH/2+200, SCR_HEIGHT-30, 20, WHITE);
+            DrawText(("Ion charge: +" + to_string(protons-electrons)).c_str(), SCR_WIDTH/2-400, SCR_HEIGHT-30, 20, WHITE);
         } else if (protons-electrons < 0) {
-            DrawText(("Ion charge: " + to_string(protons-electrons)).c_str(), SCR_WIDTH/2+200, SCR_HEIGHT-30, 20, WHITE);
+            DrawText(("Ion charge: " + to_string(protons-electrons)).c_str(), SCR_WIDTH/2-400, SCR_HEIGHT-30, 20, WHITE);
         }
+	if (!element_grid[protons][neutrons].stable) {
+		DrawText(("Chance of decay: " + to_string(ceil((1-comparison_num/10.)*10000.)/10000*100) + "%").c_str(), 900, 80, 20, WHITE);
+		DrawText("(This frame)", 900, 100, 10, WHITE);
+	} else {
+	    DrawText("Stable", 900, 80, 30, WHITE);
+	}
         
         if (!time_running) {
             DrawPoly((Vector2){SCR_WIDTH-40, 40}, 3, 30, 0, WHITE);
@@ -379,6 +478,131 @@ int main() {
             DrawRectangle(SCR_WIDTH-50, 15, 15, 50, WHITE);
             DrawRectangle(SCR_WIDTH-30, 15, 15, 50, WHITE);
         }
+
+	//partical feed
+	feed_offset = -100;
+	for (int i = 4; i >= 0; i--) {
+	    switch (partical_feed[i]) {
+		    case 0: //alpha
+			feed_offset += alpha_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+				DrawText("- Alpha partical", 900, SCR_HEIGHT-feed_offset, 10, WHITE);
+			} else {
+				DrawText("+ Alpha partical", 900, SCR_HEIGHT-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1050, SCR_HEIGHT-feed_offset, 40, RED);
+			DrawCircle(80*cos(PI/4)+1050, 80*sin(PI/4)+(SCR_HEIGHT-feed_offset), 40, GRAY);
+			DrawCircle(1050+2*(80*cos(PI/4)), SCR_HEIGHT-feed_offset, 40, RED);
+			DrawCircle(80*cos(-1*(PI/4))+1050, 80*sin(-1*(PI/4))+(SCR_HEIGHT-feed_offset), 40, GRAY);
+			DrawText("P+", 1050 - (MeasureTextEx(GetFontDefault(), ("P+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("P+", (1050+2*(80*cos(PI/4))) - (MeasureTextEx(GetFontDefault(), ("P+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("N", (80*cos(PI/4)+1050) - (MeasureTextEx(GetFontDefault(), ("N" + to_string(electrons)).c_str(), 20, 1).x)/4, 80*sin(PI/4)+(SCR_HEIGHT-feed_offset)-10, 20, WHITE);
+			DrawText("N", (80*cos(-1*(PI/4))+1050) - (MeasureTextEx(GetFontDefault(), ("N" + to_string(electrons)).c_str(), 20, 1).x)/4, 80*sin(-1*(PI/4))+(SCR_HEIGHT-feed_offset)-10, 20, WHITE);
+			feed_offset += alpha_offset;
+			break;
+
+		    	case 1: //beta_pos
+			feed_offset += electron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- Positron", 900, SCR_HEIGHT-feed_offset-5, 10, WHITE);
+			} else {
+			    DrawText("+ Positron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 20, GREEN);
+			DrawText("e+", (1010+20) - (MeasureTextEx(GetFontDefault(), ("e+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("-  v", 1070, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += electron_offset;
+			break;
+			case 2: //beta_neg
+			feed_offset += electron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- Electron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ Electron", 900, SCR_HEIGHT-5+feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 20, GREEN);
+			DrawText("e-", (1010+20) - (MeasureTextEx(GetFontDefault(), ("e-" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("-  v", 1070, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("_", 1097, SCR_HEIGHT-feed_offset-25, 20, WHITE);
+			feed_offset += electron_offset;
+			break;
+			case 3: //proton
+			feed_offset += proton_neutron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- Proton", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ Proton", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 40, RED);
+			DrawText("P+", (1010+20) - (MeasureTextEx(GetFontDefault(), ("P+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += proton_neutron_offset;
+			break;
+			case 4: // neutron
+			feed_offset += proton_neutron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- Neutron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ Neutron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 40, GRAY);
+			DrawText("N", (1010+20) - (MeasureTextEx(GetFontDefault(), ("N" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += proton_neutron_offset;
+			break;
+
+			case 5: // diproton
+			feed_offset += proton_neutron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- diProton", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ diProton", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 40, RED);
+			DrawCircle(1010+20+40, SCR_HEIGHT-feed_offset, 40, RED);
+
+			DrawText("P+", (1010+20) - (MeasureTextEx(GetFontDefault(), ("P+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("P+", (1010+20+40) - (MeasureTextEx(GetFontDefault(), ("P+" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += proton_neutron_offset;
+			break;
+			case 6: // dineutron
+			feed_offset += proton_neutron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- diNeutron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ diNeutron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 40, GRAY);
+			DrawCircle(1010+20+40, SCR_HEIGHT-feed_offset, 40, GRAY);
+
+			DrawText("N", (1010+20) - (MeasureTextEx(GetFontDefault(), ("N" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("N", (1010+20+40) - (MeasureTextEx(GetFontDefault(), ("N" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += proton_neutron_offset;
+			break;
+			case 8: // electron_capture
+			feed_offset += electron_offset;
+			DrawText("- Anti-Neutrino", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			DrawText("v", 1027, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			DrawText("_", 1027, SCR_HEIGHT-feed_offset-25, 20, WHITE);
+			case 12: //electron
+			feed_offset += electron_offset;
+			if (partical_feed_pos_neg[i] == 0) {
+			    DrawText("- Electron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			} else {
+			    DrawText("+ Electron", 900, SCR_HEIGHT-5-feed_offset, 10, WHITE);
+			}
+			DrawCircle(1010+20, SCR_HEIGHT-feed_offset, 20, GREEN);
+			DrawText("e-", (1010+20) - (MeasureTextEx(GetFontDefault(), ("e-" + to_string(electrons)).c_str(), 20, 1).x)/4, SCR_HEIGHT-feed_offset-10, 20, WHITE);
+			feed_offset += electron_offset;
+			break;
+
+
+			default:
+			feed_offset += 150;
+			break;
+	    }
+	}
+
+
+
         EndDrawing();
     }
     

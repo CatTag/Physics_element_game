@@ -32,7 +32,8 @@ struct element{
     string name;
     bool stable;
     float halflife;
-    int decay_type;
+    int decay_types[10];
+    int decay_chances[10];
 };
 
 enum feed_offsets {
@@ -345,16 +346,21 @@ int main() {
             	for (int i = 2; i > 1; i--) {
 		    partical_feed[i+1] = partical_feed[i];
 		}
+		partical_feed_pos_neg[0] = 0;
+		random_num = rand() % 100;
+		if random_num < element_grid[protons][neutrons].decay_chances[i]
                 switch (element_grid[protons][neutrons].decay_type) {
                     case 0: //alpha
                     protons -= 2;
                     neutrons -= 2;
 		    partical_feed[0] = alpha;
+		    partical_feed_pos_neg[0] = 0;
                     break;
                     case 1: //beta pos
                     protons--;
                     neutrons++;
 		    partical_feed[0] = beta_pos;
+		    partical_feed_pos_neg[0] = 0;
                     break;
                     case 2: //beta neg
                     protons++;
